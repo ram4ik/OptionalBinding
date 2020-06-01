@@ -8,9 +8,47 @@
 
 import SwiftUI
 
+extension Optional where Wrapped == String {
+    
+    var _bound: String? {
+        get { return self }
+        set { self = newValue }
+    }
+    
+    var bound: String {
+        
+        get {
+            return _bound ?? ""
+        }
+        set {
+            _bound = newValue.isEmpty ? nil : newValue
+        }
+    }
+}
+
+extension Binding {
+    
+    static func ??(lhs: Binding<Optional<Value>>, rhs: Value) -> Binding<Value> {
+        
+        return Binding(get: {lhs.wrappedValue ?? rhs }, set: { lhs.wrappedValue =  $0 })
+    }
+}
+
 struct ContentView: View {
+    
+    @State private var name: String?
+    @State private var otherName: String? = "John Doe"
+    
     var body: some View {
-        Text("Hello, World!")
+        VStack {
+            
+            TextField("Enter name", text: $name.bound)
+            // or
+            TextField("Enter name", text: $name ?? "Default Value")
+            // or
+            TextField("Enter name", text: $otherName ?? "Default Value")
+            
+        }.padding()
     }
 }
 
